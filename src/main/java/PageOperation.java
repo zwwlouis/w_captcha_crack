@@ -59,6 +59,13 @@ public class PageOperation {
         return driver.findElement(by);
     }
 
+    public WebDriver getDriver(){
+        return driver;
+    }
+    public Actions getActions(){
+        return actions;
+    }
+
     /**
      * 获取原始图url
      * @param divClass 包含图片的标签class

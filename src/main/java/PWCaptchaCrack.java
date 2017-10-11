@@ -15,7 +15,7 @@ public class PWCaptchaCrack {
     private static int row = 2;
     private static boolean imgSave = true;
     //验证码操作总次数
-    private static int opNum = 50;
+    private static int opNum = 20;
     private static String INDEX_URL = "http://captchas.wanmei.com/demo/mCaptcha/forMachine?capType=embed";
     private static WebDriver driver;
     private static int totalNum = 0;
@@ -57,43 +57,55 @@ public class PWCaptchaCrack {
      * @throws InterruptedException
      */
     private static void crackCaptcha() throws IOException, InterruptedException {
-        //获得原始图片
-        String url = po.findImgUrl(IMG_DIV_CLASS);
-        String originImg = po.downloadImg(url);
-        //获得图片偏移矩阵
-        offsetMat = po.getOffsetMat(IMG_DIV_CLASS,row,col);
-        //获得剪切图片阵列
-        BufferedImage[] imgSlices = po.getImgSlices(originImg, offsetMat, imgSave);
-        //拼接图片
-        BufferedImage bgImg = po.mergeImg(imgSlices,row,col, imgSave);
-        //获得滑块图片
-        BufferedImage blockImg =  ImageUtils.getCutPic(originImg, 260, 0, 61, 120);
-        //计算滑动距离,补偿+1
-        int moveX = po.getMoveDis(bgImg, blockImg, imgSave)+1;
-        System.out.println("需要移动的距离为：" + moveX);
-        //找到滑块按钮
-        WebElement moveBtn = po.findByClass(MOVE_BTN_CLASS);
-        //移动滑块
-        po.move(moveBtn,moveX);
-
-        for (int i = 0; i < 3; i++) {
-            By alertTextBy = By.cssSelector(".sliderImgAlert p.text");
-            WebElement alertText = po.findElement(alertTextBy);
-            String text = alertText.getAttribute("innerHTML");
-            System.out.println(text);
-            if (text.contains("验证通过")) {
-                //验证成功
-                successNum++;
-                Thread.sleep(1000);
-                return;
-            } else if (text.contains("次数过多")) {
-                //超过次数，返回刷新
-                Thread.sleep(1000);
-                return;
-            } else if (text.contains("验证失败")) {
-                //等待动画结束
+        //最多尝试5次
+        for (int i = 0; i < 5; i++) {
+            if (i != 0) {
+                //如果不是第一次，则点击验证码的刷新按钮
+                WebElement freshButton = po.findByClass("sliderImgRefreshBtn");
+                po.getActions().click(freshButton).perform();
+                //等待2s图片加载
+                Thread.sleep(2000);
             }
-            Thread.sleep(1000);
+            //识别验证码计数
+            totalNum++;
+            //获得原始图片
+            String url = po.findImgUrl(IMG_DIV_CLASS);
+            String originImg = po.downloadImg(url);
+            //获得图片偏移矩阵
+            offsetMat = po.getOffsetMat(IMG_DIV_CLASS, row, col);
+            //获得剪切图片阵列
+            BufferedImage[] imgSlices = po.getImgSlices(originImg, offsetMat, imgSave);
+            //拼接图片
+            BufferedImage bgImg = po.mergeImg(imgSlices, row, col, imgSave);
+            //获得滑块图片
+            BufferedImage blockImg = ImageUtils.getCutPic(originImg, 260, 0, 61, 120);
+            //计算滑动距离,补偿+1
+            int moveX = po.getMoveDis(bgImg, blockImg, imgSave) + 1;
+            System.out.println("需要移动的距离为：" + moveX);
+            //找到滑块按钮
+            WebElement moveBtn = po.findByClass(MOVE_BTN_CLASS);
+            //移动滑块
+            po.move(moveBtn, moveX);
+
+            for (int j = 0; j < 3; j++) {
+                By alertTextBy = By.cssSelector(".sliderImgAlert p.text");
+                WebElement alertText = po.findElement(alertTextBy);
+                String text = alertText.getAttribute("innerHTML");
+                System.out.println(text);
+                if (text.contains("验证通过")) {
+                    //验证成功
+                    successNum++;
+                    Thread.sleep(1000);
+                    return;
+                } else if (text.contains("次数过多")) {
+                    //超过次数，返回刷新
+                    Thread.sleep(1000);
+                    return;
+                } else if (text.contains("验证失败")) {
+                    //等待动画结束
+                }
+                Thread.sleep(1000);
+            }
         }
     }
 
