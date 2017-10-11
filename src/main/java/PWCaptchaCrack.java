@@ -57,6 +57,8 @@ public class PWCaptchaCrack {
      * @throws InterruptedException
      */
     private static void crackCaptcha() throws IOException, InterruptedException {
+        //识别验证码计数
+        totalNum++;
         //最多尝试5次
         for (int i = 0; i < 5; i++) {
             if (i != 0) {
@@ -66,8 +68,6 @@ public class PWCaptchaCrack {
                 //等待2s图片加载
                 Thread.sleep(2000);
             }
-            //识别验证码计数
-            totalNum++;
             //获得原始图片
             String url = po.findImgUrl(IMG_DIV_CLASS);
             String originImg = po.downloadImg(url);
