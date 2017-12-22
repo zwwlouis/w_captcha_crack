@@ -1,5 +1,7 @@
 package utils;
 
+import net.sf.javavp8decoder.imageio.WebPImageReader;
+
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
@@ -95,7 +97,7 @@ public class ImageUtils {
         int length = imgSlices.length;
         int[][] ImageRGB = new int[length][];
         for (int i = 0; i < length; i++) {
-            int width = imgSlices[0].getWidth();
+            int width = imgSlices[i].getWidth();
             int height = imgSlices[0].getHeight();
             ImageRGB[i] = new int[width * height];
             //获得图片的rgb数据
@@ -264,8 +266,9 @@ public class ImageUtils {
      * @param over   位于上方的图片
      * @param startX 叠加的起始X位置
      * @param startY 叠加的起始Y位置
+     * @param mode   叠加模式 0-加法  1-减法
      */
-    public static void overlayImg(int[][] under, int[][] over, int startX, int startY) {
+    public static void overlayImg(int[][] under, int[][] over, int startX, int startY,int mode) {
         int underWid = under.length;
         int underHei = under[0].length;
         int overWid = over.length;
@@ -275,12 +278,21 @@ public class ImageUtils {
         int drawHeight = ((underHei - startY) > overHei) ? overHei : (underHei - startY);
         for (int i = 0; i < drawWidth; i++) {
             for (int j = 0; j < drawHeight; j++) {
-                int pix = under[startX + i][startY + j] + over[i][j];
-                pix = (pix > 255) ? 255 : pix;
-                pix = (pix < 0) ? 0 : pix;
+                int pix;
+                if(mode == 0){
+                    pix = under[startX + i][startY + j] + over[i][j];
+                    pix = (pix > 255) ? 255 : pix;
+                    pix = (pix < 0) ? 0 : pix;
+                }else{
+                    pix = under[startX + i][startY + j] - over[i][j];
+                    pix = (pix < 0) ? -pix : pix;
+                }
                 under[startX + i][startY + j] = pix;
             }
         }
+    }
+
+    public static void main(String[] args) {
     }
 
 

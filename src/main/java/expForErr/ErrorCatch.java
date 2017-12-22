@@ -57,12 +57,20 @@ public class ErrorCatch {
             dir.mkdir();
         }
         //依次存储四张图片
-        ImageUtils.writeImg(img, filePath + "/" + ErrorCatch.IMG_NAME + picExt);
-        ImageUtils.writeImg(block, filePath + "/" + ErrorCatch.BLOCK_NAME + picExt);
-        //在判断错误的位置上画一条红色竖线
-        ImageUtils.drawVerticleLine(imgLaplace, moveX, Color.red);
-        ImageUtils.writeImg(imgLaplace, filePath + "/" + ErrorCatch.IMG_LAPLACE_NAME + picExt);
-        ImageUtils.writeImg(blockLaplace, filePath + "/" + ErrorCatch.BLOCK_LAPLACE_NAME + picExt);
+        if(img != null) {
+            ImageUtils.writeImg(img, filePath + "/" + ErrorCatch.IMG_NAME + picExt);
+        }
+        if(imgLaplace!=null){
+            //在判断错误的位置上画一条红色竖线
+            ImageUtils.drawVerticleLine(imgLaplace, moveX, Color.red);
+            ImageUtils.writeImg(imgLaplace, filePath + "/" + ErrorCatch.IMG_LAPLACE_NAME + picExt);
+        }
+        if(imgLaplace != null) {
+            ImageUtils.writeImg(block, filePath + "/" + ErrorCatch.BLOCK_NAME + picExt);
+        }
+        if(blockLaplace!=null) {
+            ImageUtils.writeImg(blockLaplace, filePath + "/" + ErrorCatch.BLOCK_LAPLACE_NAME + picExt);
+        }
         //存储完成后增加文件序号
         index++;
     }

@@ -9,6 +9,10 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.Buffer;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @author WeiWang Zhang
@@ -24,8 +28,17 @@ public class ErrExp {
     public final static String IMG_LAPLACE = "img-laplace";
     public final static String TWO_VALUE_BLOCK = "two-value-block";
     public final static String BLOCK_LAPLACE = "block-laplace";
-
+    public final static DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     public static void main(String[] args) {
+        //设置开始检查的时间,该时间之前的文件自动忽略
+        String startExpDateStr = "2017-10-25";
+        Date startExpDate, fileDate;
+        try {
+            startExpDate = format.parse(startExpDateStr);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return;
+        }
         //打开错误存储路径
         File dir = new File(ErrorCatch.ERROR_IMG_PATH);
         if (!dir.exists()) return;
@@ -33,6 +46,14 @@ public class ErrExp {
         File[] datePackages = dir.listFiles();
         for (File dateDir : datePackages) {
             String errDate = dateDir.getName();
+            try {
+                fileDate = format.parse(errDate);
+            } catch (ParseException e) {
+                System.out.println("文件日期名有误！");
+                e.printStackTrace();
+                continue;
+            }
+            if(fileDate.before(startExpDate)) continue;
             System.out.println("测试数据日期：" + errDate);
             //在日期包下找到所有的错误包
             File[] errPackages = dateDir.listFiles();
@@ -76,8 +97,8 @@ public class ErrExp {
                 //切割滑块左上部分
                 int[][] topCutter = GraphProcess.constantImg(center[0]+15,center[1]-10,-255);
                 int[][] leftCutter = GraphProcess.constantImg(center[0]-10,center[1]+15,-255);
-                ImageUtils.overlayImg(blockGrayLa,topCutter,0,0);
-                ImageUtils.overlayImg(blockGrayLa,leftCutter,0,0);
+                ImageUtils.overlayImg(blockGrayLa,topCutter,0,0,0);
+                ImageUtils.overlayImg(blockGrayLa,leftCutter,0,0,0);
 
                 //对滑块做高斯滤波操作（nice!）
                 blockGrayLa = GraphProcess.gaussian(blockGrayLa);
@@ -92,7 +113,7 @@ public class ErrExp {
                 ImageUtils.drawVerticleLine(imgGrayLaBF,posX, Color.red);
 
                 //将滑块画在原图上
-                ImageUtils.overlayImg(imgGrayLa,blockGrayLa,posX,0);
+                ImageUtils.overlayImg(imgGrayLa,blockGrayLa,posX,0,0);
                 //存储
                 ImageUtils.writeImg(imgGray, savePath + TWO_VALUE_IMG + ErrorCatch.picExt);
                 ImageUtils.writeImg(imgGrayLaBF, savePath + IMG_LAPLACE + ErrorCatch.picExt);
